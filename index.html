@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16191d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Mat clipboard</title>
+</head>
+<body style="margin:0;background:#16191d">
+<div id="root"></div>
+<style>
+  :root {
+    --ground: #16191d;
+    --panel: #1f242a;
+    --panel-2: #272d34;
+    --line: #363e47;
+    --ink: #eef2f5;
+    --ink-dim: #9aa6b2;
+    --go: #3fa96b;
+    --stop: #d9534a;
+    --mid: #d99a2b;
+    --pick: #4a8fd4;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  #root {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--ground);
+    color: var(--ink);
+    padding: 14px;
+    min-height: 100vh;
+    font-size: 17px;
+  }
+  .top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .top h1 { font-size: 20px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .top .date { color: var(--ink-dim); font-size: 15px; }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 14px; }
+  .tab {
+    flex: 0 0 auto; padding: 12px 18px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--ink-dim); font-size: 16px; font-weight: 500; cursor: pointer;
+  }
+  .tab.on { background: var(--pick); border-color: var(--pick); color: #fff; }
+  .tab.probe.on { background: var(--go); border-color: var(--go); }
+  .rowcard { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+  .who { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .who input {
+    flex: 1; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+    color: var(--ink); font-size: 17px; padding: 11px 12px; font-family: inherit;
+  }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .cell .lbl { font-size: 13px; color: var(--ink-dim); margin-bottom: 5px; }
+  .seq {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px; min-height: 44px; font-size: 18px; font-variant-numeric: tabular-nums;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
+  }
+  .seq .empty { color: #5c6874; font-size: 15px; }
+  .pip { padding: 1px 7px; border-radius: 5px; background: var(--line); font-size: 16px; }
+  .pip.go { background: var(--go); color: #06180e; }
+  .pip.stop { background: var(--stop); color: #200604; }
+  .pip.mid { background: var(--mid); color: #201502; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    min-width: 48px; min-height: 44px; padding: 0 12px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--ink);
+    font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .chip:active { background: var(--pick); border-color: var(--pick); }
+  .chip.del { color: var(--ink-dim); font-weight: 400; }
+  .note {
+    width: 100%; margin-top: 10px; background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 8px; color: var(--ink); font-size: 16px; padding: 10px 12px; font-family: inherit;
+  }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .btn {
+    min-height: 48px; padding: 0 20px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--ink); font-size: 16px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+  }
+  .btn.key { background: var(--pick); border-color: var(--pick); color: #fff; }
+  .hint { color: var(--ink-dim); font-size: 14px; margin: 14px 0 10px; line-height: 1.5; }
+  .out { width: 100%; height: 240px; margin-top: 12px; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-family: ui-monospace, monospace; font-size: 13px; }
+  .saved { color: var(--ink-dim); font-size: 14px; align-self: center; }
+</style>
+<script>
+// ---- edit this block each session -------------------------------------
+const SESSION = { id: "2026-09-04-pull-5", title: "Guard pulls — session 5" };
+
+const YN   = [["Y","go"],["N","stop"]];
+const STALL= [["F","stop"],["R","go"],["S","go"],["M","mid"]];
+const LR   = [["L","go"],["R","go"],["no","stop"]];
+
+const GAMES = [
+  { key:"W", name:"W · Called attacks", cols:[
+      {lbl:"Call 1 landed", vals:LR}, {lbl:"Call 2 landed", vals:LR}, {lbl:"Call 3 landed", vals:LR}],
+    rows:["",""] },
+  { key:"P", name:"1 · Full pull", probe:true, cols:[
+      {lbl:"Arrived attached", vals:YN}, {lbl:"Threat under 10s", vals:YN}, {lbl:"At the stall", vals:STALL}],
+    rows:["Fico","Nenad","Fico K","Zlatko"] },
+  { key:"G2", name:"2 · Up or over", cols:[
+      {lbl:"Win route", vals:[["SW","go"],["ST","go"],["—","stop"]]},
+      {lbl:"Stand-up attempts", count:true},
+      {lbl:"Attacked a shape", vals:YN}],
+    rows:["","",""] },
+  { key:"G3", name:"3 · Whoever's underneath", cols:[
+      {lbl:"Reversals", count:true},
+      {lbl:"Kept threatening after 1st", vals:YN},
+      {lbl:"Stand-ups finished as TD", count:true}],
+    rows:["","",""] },
+  { key:"G4", name:"4 · Shelter doesn't score", cols:[
+      {lbl:"Chose", vals:[["Pull","mid"],["TD","go"]]},
+      {lbl:"Threats produced", count:true},
+      {lbl:"Win route", vals:[["TD","go"],["P","stop"],["SU","go"],["SW","go"],["ST","go"]]}],
+    rows:["","",""] },
+  { key:"X1", name:"X1 · Side pin", cols:[
+      {lbl:"Escaped", vals:YN},
+      {lbl:"Route", vals:[["G","go"],["S","go"],["R","go"],["SU","go"]]},
+      {lbl:"Froze", vals:YN}],
+    rows:["","",""] },
+];
+// -----------------------------------------------------------------------
+
+const KEY = "matclip:" + SESSION.id;
+let data = {}, active = GAMES[0].key, showOut = false, savedAt = "";
+
+function blankRow(g, name) {
+  return { who: name || "", vals: g.cols.map(() => []), note: "" };
+}
+function init() {
+  GAMES.forEach(g => { data[g.key] = g.rows.map(n => blankRow(g, n)); });
+}
+init();
+
+let saveTimer = null;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(data));
+      savedAt = new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+      const el = document.getElementById("savedAt");
+      if (el) el.textContent = "saved " + savedAt;
+    } catch (e) {
+      const el = document.getElementById("savedAt");
+      if (el) el.textContent = "not saved — use Export before closing";
+    }
+  }, 400);
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      GAMES.forEach(g => { if (parsed[g.key]) data[g.key] = parsed[g.key]; });
+    }
+  } catch (e) { /* nothing stored yet */ }
+  render();
+}
+
+function game(k) { return GAMES.find(g => g.key === k); }
+
+function push(gk, ri, ci, v) {
+  data[gk][ri].vals[ci].push(v);
+  save(); render();
+}
+function pop(gk, ri, ci) {
+  data[gk][ri].vals[ci].pop();
+  save(); render();
+}
+function bump(gk, ri, ci) {
+  const a = data[gk][ri].vals[ci];
+  a.push(a.length ? "" : "");
+  save(); render();
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function tone(col, v) {
+  if (!col.vals) return "";
+  const hit = col.vals.find(x => x[0] === v);
+  return hit ? hit[1] : "";
+}
+
+function render() {
+  const g = game(active);
+  const tabs = GAMES.map(x =>
+    `<button class="tab ${x.key===active?"on":""} ${x.probe?"probe":""}" onclick="setTab('${x.key}')">${esc(x.name)}</button>`
+  ).join("");
+
+  const rows = data[active].map((row, ri) => {
+    const cols = g.cols.map((col, ci) => {
+      const seq = row.vals[ci];
+      const pips = seq.length
+        ? seq.map(v => col.count ? `<span class="pip">${esc(v)}</span>` : `<span class="pip ${tone(col,v)}">${esc(v)}</span>`).join("")
+        : `<span class="empty">—</span>`;
+      const chips = col.count
+        ? `<button class="chip" onclick="push('${active}',${ri},${ci},'1')">+1</button>
+           <button class="chip" onclick="push('${active}',${ri},${ci},'0')">0</button>`
+        : col.vals.map(v => `<button class="chip" onclick="push('${active}',${ri},${ci},'${v[0]}')">${esc(v[0])}</button>`).join("");
+      return `<div class="cell">
+        <div class="lbl">${esc(col.lbl)}</div>
+        <div class="seq">${pips}</div>
+        <div class="chips">${chips}
+          <button class="chip del" onclick="pop('${active}',${ri},${ci})">⌫</button>
+        </div>
+      </div>`;
+    }).join("");
+    return `<div class="rowcard">
+      <div class="who">
+        <input value="${esc(row.who)}" placeholder="who" oninput="setWho('${active}',${ri},this.value)">
+        <button class="btn" onclick="dropRow('${active}',${ri})">Remove</button>
+      </div>
+      <div class="cols">${cols}</div>
+      <input class="note" value="${esc(row.note)}" placeholder="outcome / note" oninput="setNote('${active}',${ri},this.value)">
+    </div>`;
+  }).join("");
+
+  document.getElementById("root").innerHTML = `
+    <div class="top">
+      <h1>${esc(SESSION.title)}</h1>
+      <span class="date">${esc(SESSION.id)}</span>
+      <span class="saved" id="savedAt">${savedAt ? "saved " + savedAt : ""}</span>
+    </div>
+    <div class="tabs">${tabs}</div>
+    ${rows}
+    <div class="bar">
+      <button class="btn key" onclick="addRow('${active}')">Add a row</button>
+      <button class="btn" onclick="toggleOut()">${showOut ? "Hide export" : "Export"}</button>
+    </div>
+    ${showOut ? `<div class="hint">Copy this and paste into a spreadsheet column-by-column.</div>
+      <textarea class="out" readonly>${esc(tsv())}</textarea>` : ""}
+    <div class="hint">Each tap adds one round to the sequence. ⌫ removes the last one.</div>
+  `;
+}
+
+function tsv() {
+  const out = ["game\twho\tcol1\tcol2\tcol3\tnote"];
+  GAMES.forEach(g => data[g.key].forEach(r => {
+    if (!r.who && r.vals.every(v => !v.length) && !r.note) return;
+    const cells = r.vals.map(v => v.join("/"));
+    while (cells.length < 3) cells.push("");
+    out.push([g.name, r.who, ...cells, r.note].join("\t"));
+  }));
+  return out.join("\n");
+}
+
+function setTab(k) { active = k; render(); }
+function setWho(gk, ri, v) { data[gk][ri].who = v; save(); }
+function setNote(gk, ri, v) { data[gk][ri].note = v; save(); }
+function addRow(gk) { data[gk].push(blankRow(game(gk))); save(); render(); }
+function dropRow(gk, ri) { data[gk].splice(ri, 1); save(); render(); }
+function toggleOut() { showOut = !showOut; render(); }
+
+load();
+</script>
+
+</body>
+</html>

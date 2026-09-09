@@ -86,38 +86,42 @@
 </style>
 <script>
 // ---- edit this block each session -------------------------------------
-const SESSION = { id: "2026-09-04-pull-5", title: "Guard pulls — session 5" };
+const SESSION = { id: "2026-09-06-pull-6", title: "Guard pulls \u2014 session 6 (cycle close)" };
 
-const YN   = [["Y","go"],["N","stop"]];
-const STALL= [["F","stop"],["R","go"],["S","go"],["M","mid"]];
-const LR   = [["L","go"],["R","go"],["no","stop"]];
+const YN    = [["Y","go"],["N","stop"]];
+const STALL = [["F","stop"],["R","go"],["S","go"],["M","mid"]];
+const POST  = [["K","mid"],["S","mid"],["H","mid"]];
 
 const GAMES = [
-  { key:"W", name:"W · Called attacks", cols:[
-      {lbl:"Call 1 landed", vals:LR}, {lbl:"Call 2 landed", vals:LR}, {lbl:"Call 3 landed", vals:LR}],
-    rows:["",""] },
-  { key:"P", name:"1 · Full pull", probe:true, cols:[
-      {lbl:"Arrived attached", vals:YN}, {lbl:"Threat under 10s", vals:YN}, {lbl:"At the stall", vals:STALL}],
+  { key:"W", name:"W \u00b7 Posture menu, called switches", cols:[
+      {lbl:"Posture called", vals:POST},
+      {lbl:"Top complied at once", vals:YN},
+      {lbl:"Bottom changed attack", vals:YN}],
+    rows:["","",""] },
+  { key:"P", name:"1 \u00b7 Full pull  [PROBE]", probe:true, cols:[
+      {lbl:"Arrived attached", vals:YN},
+      {lbl:"Threat under 10s", vals:YN},
+      {lbl:"At the stall", vals:STALL}],
     rows:["Fico","Nenad","Fico K","Zlatko"] },
-  { key:"G2", name:"2 · Up or over", cols:[
-      {lbl:"Win route", vals:[["SW","go"],["ST","go"],["—","stop"]]},
+  { key:"G2", name:"2 \u00b7 Up only", cols:[
+      {lbl:"Stood up attached", vals:YN},
       {lbl:"Stand-up attempts", count:true},
-      {lbl:"Attacked a shape", vals:YN}],
+      {lbl:"Passer passed", vals:YN}],
     rows:["","",""] },
-  { key:"G3", name:"3 · Whoever's underneath", cols:[
-      {lbl:"Reversals", count:true},
-      {lbl:"Kept threatening after 1st", vals:YN},
-      {lbl:"Stand-ups finished as TD", count:true}],
+  { key:"G3", name:"3 \u00b7 Underneath \u2014 subs only", cols:[
+      {lbl:"Sub attempts", count:true},
+      {lbl:"Kept threatening after reversal", vals:YN},
+      {lbl:"Used turtle", vals:YN}],
     rows:["","",""] },
-  { key:"G4", name:"4 · Shelter doesn't score", cols:[
+  { key:"G4", name:"4 \u00b7 Shelter doesn't score", cols:[
       {lbl:"Chose", vals:[["Pull","mid"],["TD","go"]]},
       {lbl:"Threats produced", count:true},
       {lbl:"Win route", vals:[["TD","go"],["P","stop"],["SU","go"],["SW","go"],["ST","go"]]}],
     rows:["","",""] },
-  { key:"X1", name:"X1 · Side pin", cols:[
-      {lbl:"Escaped", vals:YN},
-      {lbl:"Route", vals:[["G","go"],["S","go"],["R","go"],["SU","go"]]},
-      {lbl:"Froze", vals:YN}],
+  { key:"X1", name:"X1 \u00b7 Side pin through turtle", cols:[
+      {lbl:"Reached turtle", vals:YN},
+      {lbl:"Route from turtle", vals:[["R","go"],["W","go"],["SU","go"],["G","go"],["\u2014","stop"]]},
+      {lbl:"Held flat 20s", vals:YN}],
     rows:["","",""] },
 ];
 // -----------------------------------------------------------------------

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16191d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Mat clipboard</title>
+</head>
+<body style="margin:0;background:#16191d">
+<div id="root"></div>
+<style>
+  :root {
+    --ground: #16191d;
+    --panel: #1f242a;
+    --panel-2: #272d34;
+    --line: #363e47;
+    --ink: #eef2f5;
+    --ink-dim: #9aa6b2;
+    --go: #3fa96b;
+    --stop: #d9534a;
+    --mid: #d99a2b;
+    --pick: #4a8fd4;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  #root {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--ground);
+    color: var(--ink);
+    padding: 14px;
+    min-height: 100vh;
+    font-size: 17px;
+  }
+  .top { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .top h1 { font-size: 20px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .top .date { color: var(--ink-dim); font-size: 15px; }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 14px; }
+  .tab {
+    flex: 0 0 auto; padding: 12px 18px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--ink-dim); font-size: 16px; font-weight: 500; cursor: pointer;
+  }
+  .tab.on { background: var(--pick); border-color: var(--pick); color: #fff; }
+  .tab.probe.on { background: var(--go); border-color: var(--go); }
+  .rowcard { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+  .who { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .who input {
+    flex: 1; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+    color: var(--ink); font-size: 17px; padding: 11px 12px; font-family: inherit;
+  }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+  .cell .lbl { font-size: 13px; color: var(--ink-dim); margin-bottom: 5px; }
+  .seq {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 12px; min-height: 44px; font-size: 18px; font-variant-numeric: tabular-nums;
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px;
+  }
+  .seq .empty { color: #5c6874; font-size: 15px; }
+  .pip { padding: 1px 7px; border-radius: 5px; background: var(--line); font-size: 16px; }
+  .pip.go { background: var(--go); color: #06180e; }
+  .pip.stop { background: var(--stop); color: #200604; }
+  .pip.mid { background: var(--mid); color: #201502; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    min-width: 48px; min-height: 44px; padding: 0 12px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--ink);
+    font-size: 16px; font-weight: 600; cursor: pointer; font-family: inherit;
+  }
+  .chip:active { background: var(--pick); border-color: var(--pick); }
+  .chip.del { color: var(--ink-dim); font-weight: 400; }
+  .note {
+    width: 100%; margin-top: 10px; background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 8px; color: var(--ink); font-size: 16px; padding: 10px 12px; font-family: inherit;
+  }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .btn {
+    min-height: 48px; padding: 0 20px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--ink); font-size: 16px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+  }
+  .btn.key { background: var(--pick); border-color: var(--pick); color: #fff; }
+  .hint { color: var(--ink-dim); font-size: 14px; margin: 14px 0 10px; line-height: 1.5; }
+  .out { width: 100%; height: 240px; margin-top: 12px; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; padding: 10px; font-family: ui-monospace, monospace; font-size: 13px; }
+  .saved { color: var(--ink-dim); font-size: 14px; align-self: center; }
+
+  .round-heading { font-size: 17px; font-weight: 700; margin: 0 0 10px; }
+  .id-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .id-field label { display: block; color: var(--ink-dim); font-size: 14px; margin-bottom: 5px; }
+  .id-field input { width: 100%; background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px;
+    padding: 11px 12px; color: var(--ink); font-size: 16px; font-family: inherit; }
+  .sub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 9px; margin-bottom: 14px; }
+  .sub-item { background: var(--panel-2); border: 1px solid var(--line); border-radius: 9px; padding: 10px; }
+  .sub-title { color: var(--ink-dim); font-size: 14px; margin-bottom: 7px; }
+  .sub-value { font-size: 27px; font-weight: 650; font-variant-numeric: tabular-nums; margin-right: 8px; }
+  .sub-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  button:disabled { opacity: .35; cursor: default; }
+  .chip .explain { font-weight: 400; font-size: 14px; }
+</style>
+<script>
+// ---- Execution 01 / Session 1: locked frozen baseline ---------------
+// 6 × 5-minute rounds; 2-minute rests; focal F1/F2/F3 tracked twice,
+// each against a different reasonably matched partner A then B.
+// Record both athlete IDs. Partner A/B labels are NOT experimental groups.
+// Submission ends the EXCHANGE, not the 5-minute round: count each finish,
+// release safely, and restart standing when safe. No artificial restarts
+// to boost the standing-entry denominator. Boundary = ordinary safety stop.
+//
+// Count clearly visible meaningful phase changes only:
+// (1) standing <-> ground; (2) guard <-> established pin/back control;
+// (3) reversal of top/bottom; (4) established control visibly breaks
+//     and neither athlete clearly controls the resulting exchange.
+// If uncertain about eligibility: SKIP. Count nonoverlapping events
+// per observed focal round. Code first visible response and effect at 10s.
+// Standing entries are independent, naturally occurring observations.
+// Submission totals count EVERY finish across each full 5-minute round,
+// including finishes occurring outside sampled transitions.
+const SESSION = {
+  id: "2026-10-28-execution01-s1-frozen-v3",
+  title: "Execution 01 — Session 1 | Open-choice baseline"
+};
+
+// Button layout uses code (plain-English explanation).
+const ENTRY = [
+  ["P","mid","pull"], ["T","mid","takedown"], ["O","mid","other"],
+  ["R","mid","opponent first"], ["N","mid","no entry in 10s"], ["?","mid","unclear"]
+];
+const RESP = [
+  ["A","mid","attack/advance"], ["D","mid","defend/recover"],
+  ["H","mid","hold/no new action"], ["?","mid","unclear"]
+];
+const EFFECT = [
+  ["+","go","focal benefit"], ["=","mid","no clear change"],
+  ["-","stop","opponent benefit"], ["?","mid","unclear"]
+];
+
+const GAMES = [
+  { key:"P", name:"1 · Open-choice execution (FROZEN PROBE)", probe:true, cols:[
+      {lbl:"Standing entry (natural starts only)", vals:ENTRY},
+      {lbl:"Phase response (first visible action)", vals:RESP},
+      {lbl:"10s consequence (same transitions)", vals:EFFECT}],
+    rows:[
+      {round:"R1", focalSlot:"F1", partnerSlot:"Partner A"},
+      {round:"R2", focalSlot:"F2", partnerSlot:"Partner A"},
+      {round:"R3", focalSlot:"F3", partnerSlot:"Partner A"},
+      {round:"R4", focalSlot:"F1", partnerSlot:"Partner B"},
+      {round:"R5", focalSlot:"F2", partnerSlot:"Partner B"},
+      {round:"R6", focalSlot:"F3", partnerSlot:"Partner B"}
+    ] }
+];
+// -----------------------------------------------------------------------
+
+const KEY = "matclip:" + SESSION.id;
+let data = {}, active = GAMES[0].key, showOut = false, savedAt = "";
+
+function blankRow(g, seed) {
+  const x = (typeof seed === "object" && seed !== null) ? seed : {};
+  return {
+    round: x.round || "Extra", focalSlot: x.focalSlot || "Focal",
+    partnerSlot: x.partnerSlot || "Partner",
+    focal: "", partner: "", focalSubs: null, partnerSubs: null,
+    vals: g.cols.map(() => []), note: ""
+  };
+}
+function init() {
+  GAMES.forEach(g => { data[g.key] = g.rows.map(n => blankRow(g, n)); });
+}
+init();
+
+let saveTimer = null;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(data));
+      savedAt = new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+      const el = document.getElementById("savedAt");
+      if (el) el.textContent = "saved " + savedAt;
+    } catch (e) {
+      const el = document.getElementById("savedAt");
+      if (el) el.textContent = "not saved — use Export before closing";
+    }
+  }, 400);
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      GAMES.forEach(g => { if (parsed[g.key]) data[g.key] = parsed[g.key]; });
+    }
+  } catch (e) { /* nothing stored yet */ }
+  render();
+}
+
+function game(k) { return GAMES.find(g => g.key === k); }
+
+function push(gk, ri, ci, v) {
+  const col = game(gk).cols[ci];
+  if (col.max && data[gk][ri].vals[ci].length >= col.max) return;
+  data[gk][ri].vals[ci].push(v);
+  save(); render();
+}
+function pop(gk, ri, ci) {
+  data[gk][ri].vals[ci].pop();
+  save(); render();
+}
+function bump(gk, ri, ci) {
+  const a = data[gk][ri].vals[ci];
+  a.push(a.length ? "" : "");
+  save(); render();
+}
+
+function setIdentity(gk, ri, field, v) {
+  if (field !== "focal" && field !== "partner") return;
+  data[gk][ri][field] = v;
+  save();
+}
+function changeSubs(gk, ri, field, op) {
+  if (field !== "focalSubs" && field !== "partnerSubs") return;
+  const row = data[gk][ri];
+  const v = row[field];
+  if (op === "add") row[field] = (v === null ? 0 : v) + 1;
+  if (op === "undo" && v !== null && v > 0) row[field] = v - 1;
+  // Zero is explicitly observed; second tap of 0 reverts to unknown.
+  if (op === "zero" && (v === null || v === 0)) row[field] = v === null ? 0 : null;
+  save(); render();
+}
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function tone(col, v) {
+  if (!col.vals) return "";
+  const hit = col.vals.find(x => x[0] === v);
+  return hit ? hit[1] : "";
+}
+
+function render() {
+  const g = game(active);
+  const tabs = GAMES.map(x =>
+    `<button class="tab ${x.key===active?"on":""} ${x.probe?"probe":""}" onclick="setTab('${x.key}')">${esc(x.name)}</button>`
+  ).join("");
+
+  const rows = data[active].map((row, ri) => {
+    const cols = g.cols.map((col, ci) => {
+      const seq = row.vals[ci];
+      const pips = seq.length
+        ? seq.map(v => `<span class="pip ${tone(col,v)}">${esc(v)}</span>`).join("")
+        : `<span class="empty">—</span>`;
+      const capped = Boolean(col.max && seq.length >= col.max);
+      const chips = col.vals.map(v =>
+        `<button class="chip" ${capped?"disabled":""} onclick="push('${active}',${ri},${ci},'${v[0]}')">${esc(v[0])} <span class="explain">(${esc(v[2])})</span></button>`
+      ).join("");
+      return `<div class="cell">
+        <div class="lbl">${esc(col.lbl)}</div>
+        <div class="seq">${pips}</div>
+        <div class="chips">${chips}
+          <button class="chip del" ${seq.length?"":"disabled"} onclick="pop('${active}',${ri},${ci})">⌫ (undo)</button>
+        </div>
+      </div>`;
+    }).join("");
+    const subControl = (field, label) => {
+      const n = row[field];
+      return `<div class="sub-item">
+        <div class="sub-title">${label} — all submission finishes in this 5-minute round</div>
+        <div class="sub-actions">
+          <span class="sub-value">${n === null ? "—" : n}</span>
+          <button class="chip" onclick="changeSubs('${active}',${ri},'${field}','add')">+1 (finish)</button>
+          <button class="chip del" ${n === null || n === 0?"disabled":""} onclick="changeSubs('${active}',${ri},'${field}','undo')">−1 (undo)</button>
+          <button class="chip" ${n !== null && n !== 0?"disabled":""} onclick="changeSubs('${active}',${ri},'${field}','zero')">0 (none)</button>
+        </div>
+      </div>`;
+    };
+    return `<div class="rowcard">
+      <div class="round-heading">${esc(row.round)} · ${esc(row.focalSlot)} vs ${esc(row.partnerSlot)} · 5 min</div>
+      <div class="id-grid">
+        <div class="id-field"><label>Focal athlete (name / stable ID)</label>
+          <input value="${esc(row.focal)}" placeholder="Enter focal athlete name / ID" oninput="setIdentity('${active}',${ri},'focal',this.value)"></div>
+        <div class="id-field"><label>Opponent (name / stable ID)</label>
+          <input value="${esc(row.partner)}" placeholder="Enter partner name / ID" oninput="setIdentity('${active}',${ri},'partner',this.value)"></div>
+      </div>
+      <div class="sub-grid">
+        ${subControl("focalSubs", "Focal submissions")}
+        ${subControl("partnerSubs", "Opponent submissions")}
+      </div>
+      <div class="cols">${cols}</div>
+      <input class="note" value="${esc(row.note)}" placeholder="Optional note (e.g. HA appearance, safety disruption)" oninput="setNote('${active}',${ri},this.value)">
+    </div>`;
+  }).join("");
+
+  document.getElementById("root").innerHTML = `
+    <div class="top">
+      <h1>${esc(SESSION.title)}</h1>
+      <span class="date">${esc(SESSION.id)}</span>
+      <span class="saved" id="savedAt">${savedAt ? "saved " + savedAt : ""}</span>
+    </div>
+    <div class="tabs">${tabs}</div>
+    ${rows}
+    <div class="bar">
+      <button class="btn" onclick="toggleOut()">${showOut ? "Hide export" : "Export TSV"}</button>
+    </div>
+    ${showOut ? `<div class="hint">Export includes round, both athlete IDs, BOTH submission counts, three observation sequences and note. Copy TSV into the cycle chat.</div>
+      <textarea class="out" readonly>${esc(tsv())}</textarea>` : ""}
+    <div class="hint">Both IDs required for interpretable bouts. A blank is unknown, not zero. Each tap adds a code to a sequence; ⌫ removes its last code.</div>
+  `;
+}
+
+function tsv() {
+  const clean = v => String(v === null || v === undefined ? "" : v).replace(/[\t\r\n]/g, " ");
+  const out = ["session_id\tgame\tround\tfocal_slot\tfocal_id\tpartner_slot\tpartner_id\tfocal_submissions\tpartner_submissions\tstanding_entry\tphase_response\tconsequence_10s\tnote"];
+  GAMES.forEach(g => data[g.key].forEach(r => {
+    const cells = r.vals.map(v => v.join("/"));
+    while (cells.length < 3) cells.push("");
+    out.push([
+      SESSION.id, g.name, r.round, r.focalSlot, r.focal, r.partnerSlot, r.partner,
+      r.focalSubs, r.partnerSubs, ...cells, r.note
+    ].map(clean).join("\t"));
+  }));
+  return out.join("\n");
+}
+
+function setTab(k) { active = k; render(); }
+function setNote(gk, ri, v) { data[gk][ri].note = v; save(); }
+function toggleOut() { showOut = !showOut; render(); }
+
+load();
+</script>
+
+</body>
+</html>

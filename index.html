@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#16191d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Execution 01 · Focused session 2 — Clipboard</title>
+<style>
+:root{color-scheme:dark;--bg:#16191d;--panel:#20252b;--panel2:#2a3038;--line:#3b444d;--txt:#eff2f6;--sub:#aeb9c4;--blue:#559ae4;--green:#49b482;--red:#e27873;--amber:#e2b361}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select,textarea{font:inherit}
+button{touch-action:manipulation;cursor:pointer}
+button:disabled{opacity:.32;cursor:default}
+main{max-width:840px;margin:auto;padding:12px 12px 35px}
+header{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:9px}
+h1{font-size:18px;letter-spacing:-.02em;margin:0;font-weight:720}
+.muted{color:var(--sub);font-size:12px}
+.runbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.runbar input{height:36px;color:var(--txt);border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:4px 8px;max-width:146px}
+.segment{display:flex;gap:5px;flex-wrap:wrap}
+.segment button,.nav button,.mini{color:var(--txt);border:1px solid var(--line);background:var(--panel);padding:8px 11px;border-radius:9px;min-height:38px}
+.segment button.on,.nav button.on{background:var(--blue);border-color:var(--blue);color:#07121e;font-weight:760}
+.nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:7px;margin-bottom:5px}
+.nav button{white-space:nowrap;flex:1;min-width:max-content;font-weight:680}
+.nav button.probe.on{background:var(--green);border-color:var(--green);color:#082015}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px;margin-top:8px}
+.picker{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.picker strong{font-size:14px}
+.picker .segment button{min-width:48px}
+.sectionhint{color:var(--sub);font-size:12px;margin:8px 0 3px;line-height:1.5}
+.metahead{display:flex;gap:9px;justify-content:space-between;align-items:center;min-height:34px}
+.metahead summary{cursor:pointer;font-weight:620;list-style:none}
+.metahead summary::-webkit-details-marker{display:none}
+details>summary{cursor:pointer;font-weight:620}
+details>summary::marker{color:var(--sub)}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.field{min-width:0}
+.field label{display:block;color:var(--sub);font-size:11px;margin:0 0 3px}
+.field input,.field select{width:100%;height:42px;padding:7px 9px;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;font-size:15px;min-width:0}
+.names.probe-names{grid-template-columns:1fr 1fr}
+.line{height:1px;background:var(--line);margin:10px 0}
+.controlshead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:5px}
+.controlshead b{font-size:13px}
+.quiet{font-size:12px;color:var(--sub)}
+.chips{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:8px;min-height:43px;padding:7px 12px;min-width:44px;font-weight:680;font-size:15px}
+.chip.good{border-color:#326b55;color:#9ee4bb}.chip.bad{border-color:#805050;color:#ffb3b0}.chip.warm{color:#f2d19e}
+.chip.sel{background:var(--blue);color:#07121e;border-color:var(--blue)}
+.chip.under{font-weight:500;color:var(--sub)}
+.chip.tiny{min-height:35px;padding:5px 10px;font-size:13px;min-width:40px}
+.chip:active{filter:brightness(1.35)}
+.measure{margin-top:11px}
+.measure:first-child{margin-top:0}
+.measure label{display:block;font-size:12px;color:var(--sub);margin-bottom:5px}
+.evstrip{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;max-height:98px;overflow:auto}
+.pip{background:var(--panel2);border:1px solid var(--line);padding:4px 7px;border-radius:6px;font-size:12px;font-variant-numeric:tabular-nums}
+.pip .low{color:var(--sub)}
+.blank{color:#84919e;font-size:12px}
+.actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.actions button{min-width:0;min-height:46px;border-radius:8px;background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-weight:650;padding:6px 5px}
+.actions button.good{border-color:#368b65;color:#9ee4bb}.actions button.bad{border-color:#905657;color:#ffc2bc}
+.actions button:active{background:#465565}
+.actions.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.guide{font-size:12px;color:var(--sub);line-height:1.5;margin-top:6px}
+.guide details{margin-top:5px}
+.guide summary{color:#d3dce4}
+.metric{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.kpi{background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:6px 9px;min-width:72px;text-align:center}
+.kpi b{display:block;font-size:19px;font-variant-numeric:tabular-nums}.kpi small{color:var(--sub);font-size:11px}
+.minirow{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.notes{width:100%;margin-top:9px;resize:vertical;min-height:38px;height:38px;padding:8px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--txt)}
+.footer{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-top:10px}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:10px 13px;min-height:42px;font-weight:650}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#07121e}
+.export{margin-top:8px}
+.export textarea{width:100%;min-height:170px;resize:vertical;background:#101419;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:9px;font:11px/1.35 ui-monospace,SFMono-Regular,monospace}
+.notice{margin:8px 0 0;font-size:11px;color:var(--sub)}
+.score{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.score .kpi{min-width:92px}
+.score .kpi b{font-size:22px}
+.full{grid-column:1/-1}
+
+/* Each recording box owns its visible history and undo. */
+.measurebox{margin-top:9px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--panel2)}
+.measurebox:first-child{margin-top:0}
+.measurehead{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}
+.measurehead b{font-size:13px;font-weight:700}
+.undobox{border:1px solid var(--line);border-radius:7px;background:#333c46;color:var(--txt);padding:5px 9px;min-height:32px;font-size:12px;font-weight:650;white-space:nowrap}
+.undobox:not(:disabled):active{background:#49566a}
+.recorded{margin-top:9px;padding-top:8px;border-top:1px solid var(--line)}
+.recorded-head{font-size:11px;color:var(--sub);margin-bottom:5px}
+.recorded-list{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.recorded-item{display:inline-flex;align-items:baseline;gap:5px;background:#1c232b;border:1px solid #434d57;border-radius:6px;padding:5px 7px;font-size:13px;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:anywhere}
+.recorded-item small{color:#a6b1be;font-size:10px}
+.measurebox .sectionhint{margin-top:5px}
+.measurebox .score{margin-top:7px}
+.measurebox .actions{margin-top:7px}
+@media(max-width:440px){.measurebox{padding:9px}.recorded-item{font-size:12px}}
+
+@media(min-width:620px){main{padding:16px 18px}.names{grid-template-columns:2fr 1fr 2fr 1fr}.actions{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body><div id="app"></div>
+<script>
+// CLA coaching clipboard, adapted for this session's explicit compact two-focal UI.
+// All observations are event-level; blanks mean unobserved, never a negative.
+// No network or external dependencies. Export separately for each actual run.
+const SESSION={id:'execution01-focused2-v2',title:'Execution 01 · Focused 2'};
+const RUNS=[{id:'wed-gi',label:'Wed · Gi',attire:'Gi'},{id:'thu-nogi',label:'Thu · No-Gi',attire:'No-Gi'}];
+const BLOCKS=[
+ {key:'W',tab:'W · Probe',name:'Opening frozen probe',probe:true,slots:['P1','P2'],rounds:['W'],area:'standing',rule:'Standing, submission-only: no positional points, compulsory entry or experience-band matching. Keep the original frozen probe measures unchanged.'},
+ {key:'T',tab:'1 · Triangle',name:'Triangle execution',slots:['T1','T2'],rounds:['R1','R2'],area:'submissions',rule:'Start in a live, established but unfinished triangle. Attacker wins by ANY submission; defender by first valid positional score or submission. A clean escape alone is not a win or a scored outcome: continue until a score or submission. Alternate roles when restarting.'},
+ {key:'D',tab:'2 · Dogfight',name:'Dogfight scramble',slots:['D1','D2'],rounds:['R1','R2'],area:'guard',rule:'Start in contested dogfight; either athlete wins by first valid positional score or submission. Neutral disengagement may reset without a win. No compulsory guard recovery. Alternate starting sides.'},
+ {key:'G',tab:'3 · Pull + HA',name:'Standing → guard pull + HA intention',slots:['G1','G2'],rounds:['R1','R2'],area:'guard',rule:'Start standing. NO takedowns by either athlete. Both may pull guard; whoever ends up on top must work from top rather than voluntarily resetting or pulling. Continue after positional scores; higher points at the buzzer wins if no submission. Submissions restart standing with points cleared. Invite head-and-arm opportunities; any legal submission scores a finish. No favourable HA-start reward.'},
+ {key:'X',tab:'X · Probe',name:'Closing frozen probe',probe:true,slots:['P1','P2'],rounds:['X'],area:'standing',rule:'Identical to opening frozen probe: standing, submission-only, no positional scoring, compulsory entry or experience-band matching. Same P1/P2 focal athletes; preferably same opponents.'}
+];
+const BANDS=[['','Band?'],['B1','B1 <1y'],['B2','B2 1–2y'],['B3','B3 2–3y'],['B4','B4 4+y']];
+const ENTRIES=['P','T','O','R','N','?'];
+const RESPONSES=['A','D','H','?'];
+const EFFECTS=['+','=','-','?'];
+let runId=RUNS[0].id, state=null, view={block:'W',slot:'P1',round:'W',showExport:false,identOpen:true}, persistTimer=null;
+const clone=x=>JSON.parse(JSON.stringify(x));
+const el=id=>document.getElementById(id);
+const escaped=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function run(){return RUNS.find(r=>r.id===runId)}
+function block(){return BLOCKS.find(b=>b.key===view.block)}
+function rowKey(b,round,slot){return b+'|'+round+'|'+slot}
+function key(){return 'matclip:'+SESSION.id+':'+runId}
+function emptyRow(){return {opponent:'',opponentBand:'',coverage:'',events:[],note:'',draft:{role:'A',side:'U',guard:'',match:1,scoreF:0,scoreO:0,pendingSub:''},history:[]}}
+function blankState(){const s={date:'',roster:{},records:{}}; for(const b of BLOCKS){for(const slot of b.slots)s.roster[slot]={name:'',band:''};for(const round of b.rounds)for(const slot of b.slots)s.records[rowKey(b.key,round,slot)]=emptyRow()}return s}
+function load(){const blank=blankState();try{const raw=localStorage.getItem(key());if(raw){const from=JSON.parse(raw);if(typeof from.date==='string')blank.date=from.date;
+ for(const slot of Object.keys(blank.roster)){const f=from.roster?.[slot];if(f){blank.roster[slot].name=String(f.name||'');blank.roster[slot].band=BANDS.some(x=>x[0]===f.band)?f.band:''}}
+ for(const rk of Object.keys(blank.records)){const r=from.records?.[rk];if(r){const q=blank.records[rk];q.opponent=String(r.opponent||'');q.opponentBand=BANDS.some(x=>x[0]===r.opponentBand)?r.opponentBand:'';q.coverage=['','full','partial'].includes(r.coverage)?r.coverage:'';q.note=String(r.note||'');q.events=Array.isArray(r.events)?r.events:[];q.draft={...q.draft,...(r.draft||{})};q.history=Array.isArray(r.history)?r.history.slice(-120):[]}}}
+ }catch(e){}state=blank;view={...view,block:'W',slot:'P1',round:'W',showExport:false,identOpen:true};render()}
+function flush(){clearTimeout(persistTimer);try{localStorage.setItem(key(),JSON.stringify(state));const s=el('saved');if(s)s.textContent='Saved';}catch(e){const s=el('saved');if(s)s.textContent='Save unavailable — export now';}}
+function save(){const s=el('saved');if(s)s.textContent='Saving…';clearTimeout(persistTimer);persistTimer=setTimeout(flush,120)}
+function rk(){return rowKey(view.block,view.round,view.slot)}
+function row(){return state.records[rk()]}
+function edit(fn){const r=row();fn(r);save();render()}
+// Undo is scoped to the recording box, never to an unrelated later tap.
+function undoBox(which){
+ const r=row(),es=r.events;
+ const phaseFields={entry:'entry',response:'response',consequence:'consequence'};
+ if(phaseFields[which]){
+  const field=phaseFields[which];
+  for(let i=es.length-1;i>=0;i--){const e=es[i];if(e.kind==='phase'&&e[field]){
+   e[field]='';if(!e.entry&&!e.response&&!e.consequence)es.splice(i,1);
+   save();render();return;
+  }}
+  return;
+ }
+ const kinds={probe_sub:'submission',triangle:'triangle_exchange',dogfight:'dogfight_exchange',pull_entry:'pull_entry',ha_threat:'ha_threat',points:'points',submission:'submission',time_result:'time_result'};
+ const type=kinds[which];if(!type)return;
+ for(let i=es.length-1;i>=0;i--){const e=es[i];if(e.kind!==type)continue;
+  if(which==='probe_sub'&&view.block!=='W'&&view.block!=='X')return;
+  if(which==='submission'&&view.block!=='G')return;
+  es.splice(i,1);
+  if(view.block==='G'){
+   recalcPull(r);
+  }
+  save();render();return;
+ }
+}
+// Rebuild points and match numbers after any local undo, preserving event order.
+function recalcPull(r){
+ let match=1,f=0,o=0;
+ for(const e of r.events){
+  if(!['pull_entry','ha_threat','points','submission','time_result'].includes(e.kind))continue;
+  e.match=match;
+  if(e.kind==='points'){if(e.side==='F')f+=Number(e.points)||0;else o+=Number(e.points)||0;}
+  if(['points','submission','time_result'].includes(e.kind)){e.scoreF=f;e.scoreO=o;}
+  if(e.kind==='submission'){match++;f=0;o=0;}
+ }
+ r.draft.match=match;r.draft.scoreF=f;r.draft.scoreO=o;
+}
+function chooseBlock(id){flush();const b=BLOCKS.find(x=>x.key===id);if(!b)return;view.block=id;view.slot=b.slots[0];view.round=b.rounds[0];view.showExport=false;view.identOpen=false;render()}
+function chooseSlot(slot){if(!block().slots.includes(slot))return;flush();view.slot=slot;view.identOpen=false;render()}
+function chooseRound(rd){if(!block().rounds.includes(rd))return;flush();view.round=rd;view.identOpen=false;render()}
+function chooseRun(id){if(id===runId)return;flush();runId=id;load()}
+function setDate(v){state.date=v;save()}
+function setRoster(field,value){state.roster[view.slot][field]=value;save();if(field==='band')render()}
+function setRow(field,value){row()[field]=value;save();if(field==='opponentBand'||field==='coverage')render()}
+function addEvent(e){edit(r=>r.events.push({...e,idx:r.events.length+1}))}
+function phase(field,value){edit(r=>{
+ let ev;
+ if(field==='entry'){ev={kind:'phase',entry:'',response:'',consequence:'',idx:r.events.length+1};r.events.push(ev)}
+ else{
+  for(let i=r.events.length-1;i>=0;i--){const e=r.events[i];if(e.kind==='phase'&&!e[field]){ev=e;break}}
+  if(!ev){ev={kind:'phase',entry:'',response:'',consequence:'',idx:r.events.length+1};r.events.push(ev)}
+ }
+ ev[field]=value;
+})}
+// Starting role/side are coach-controlled selections, not auto-advancing counters.
+function setDraft(field,value){row().draft[field]=value;save();render()}
+function triangleOutcome(code){if(!['AH','AO','DP','DH','DO','T','?'].includes(code))return;edit(r=>{const role=r.draft.role,attF=role==='A';let result='',finish='NONE';
+ if(code==='AH'||code==='AO'){result=attF?'S':'OS';finish=code==='AH'?'HA':'OTHER'}
+ if(code==='DP'){result=attF?'OP':'P'}
+ if(code==='DH'||code==='DO'){result=attF?'OS':'S';finish=code==='DH'?'HA':'OTHER'}
+ if(code==='T')result='T';if(code==='?'){result='?';finish='?'}
+ r.events.push({kind:'triangle_exchange',idx:r.events.length+1,role,result,finish});
+ })}
+function dogOutcome(result){edit(r=>{r.events.push({kind:'dogfight_exchange',idx:r.events.length+1,side:r.draft.side,guard:r.draft.guard,result});r.draft.guard=''})}
+function pullEntry(actor,value){edit(r=>{r.events.push({kind:'pull_entry',idx:r.events.length+1,actor,value,match:r.draft.match})})}
+function haThreat(side){addEvent({kind:'ha_threat',side,match:row().draft.match})}
+function addPoints(side,points){edit(r=>{if(side==='F')r.draft.scoreF+=points;else r.draft.scoreO+=points;r.events.push({kind:'points',idx:r.events.length+1,side,points,match:r.draft.match,scoreF:r.draft.scoreF,scoreO:r.draft.scoreO})})}
+function pendingSubmission(side){const r=row();if(r.draft.pendingSub===side){r.draft.pendingSub='';save();render();return}r.draft.pendingSub=side;save();render()}
+function finishSubmission(type){const r=row();if(!r.draft.pendingSub)return;edit(r=>{const side=r.draft.pendingSub;r.events.push({kind:'submission',idx:r.events.length+1,side,finish:type,match:r.draft.match,scoreF:r.draft.scoreF,scoreO:r.draft.scoreO});r.draft.match++;r.draft.scoreF=0;r.draft.scoreO=0;r.draft.pendingSub='';})}
+function timeResult(result){edit(r=>{r.events.push({kind:'time_result',idx:r.events.length+1,result,match:r.draft.match,scoreF:r.draft.scoreF,scoreO:r.draft.scoreO});r.draft.pendingSub=''})}
+function nEvents(r,kind){return r.events.filter(e=>e.kind===kind).length}
+function results(r){let f=0,o=0;for(const e of r.events){if(e.kind==='submission'){e.side==='F'?f++:o++}if(e.kind==='triangle_exchange'||e.kind==='dogfight_exchange'){e.result==='S'?f++:e.result==='OS'?o++:null}}return {f,o}}
+function bandOptions(value){return BANDS.map(([id,label])=>`<option value="${escaped(id)}" ${id===value?'selected':''}>${escaped(label)}</option>`).join('')}
+function actualPairing(){const f=state.roster[view.slot].band,o=row().opponentBand;if(!f||!o)return '';if(f===o)return 'within';const n=Number(f.slice(1)),m=Number(o.slice(1));return (n<=2&&m<=2)||(n>=3&&m>=3)?'adjacent':'other'}
+function plannedPairing(){return block().probe?'unscaffolded':view.round==='R1'?'within':'adjacent'}
+function identity(){const r=row(),a=state.roster[view.slot],isProbe=block().probe,actual=isProbe?'':actualPairing(),planned=plannedPairing();const note=actual&&actual!==planned&&!isProbe?` <span style="color:var(--amber)">actual: ${actual}</span>`:actual&&!isProbe?` · actual: ${actual}`:'';
+return `<details class="panel" ${view.identOpen?'open':''} ontoggle="if(event.target===this)view.identOpen=this.open"><summary>${escaped(a.name||view.slot)} · ${escaped(r.opponent||'opponent?')} <span class="muted">· ${escaped(view.round)} ${escaped(planned)}${note}</span></summary>
+<div class="names ${isProbe?'probe-names':''}">
+ <div class="field"><label>Focal ${escaped(view.slot)}</label><input aria-label="Focal athlete" placeholder="Name / ID" value="${escaped(a.name)}" oninput="setRoster('name',this.value)"></div>
+ ${isProbe?'':`<div class="field"><label>Focal band</label><select aria-label="Focal band" onchange="setRoster('band',this.value)">${bandOptions(a.band)}</select></div>`}
+ <div class="field"><label>Opponent</label><input aria-label="Opponent" placeholder="Name / ID" value="${escaped(r.opponent)}" oninput="setRow('opponent',this.value)"></div>
+ ${isProbe?'':`<div class="field"><label>Opponent band</label><select aria-label="Opponent band" onchange="setRow('opponentBand',this.value)">${bandOptions(r.opponentBand)}</select></div>`}
+ <div class="field full"><label>Observation coverage</label><div class="segment"><button class="${r.coverage==='full'?'on':''}" onclick="setRow('coverage','full')">Full</button><button class="${r.coverage==='partial'?'on':''}" onclick="setRow('coverage','partial')">Partial</button><button class="${r.coverage===''?'on':''}" onclick="setRow('coverage','')">Unspecified</button></div></div>
+</div></details>`}
+function btn(text,js,extra=''){return `<button class="chip ${extra}" onclick="${js}">${escaped(text)}</button>`}
+function selection(field,values){return `<div class="segment">${values.map(([value,label])=>`<button class="${row().draft[field]===value?'on':''}" onclick="setDraft('${field}','${value}')">${escaped(label)}</button>`).join('')}</div>`}
+function metricBox(title,actions,history,kind,hint=''){
+ const recorded=history.length?history.map((v,i)=>`<span class="recorded-item"><small>${typeof v==='object'?v.number:i+1}</small>${escaped(typeof v==='object'?v.text:v)}</span>`).join(''):'<span class="blank">— Not recorded —</span>';
+ return `<section class="measurebox"><div class="measurehead"><b>${escaped(title)}</b><button class="undobox" onclick="undoBox('${kind}')" ${history.length?'':'disabled'}>↶ Undo</button></div>
+ ${actions}${hint?`<div class="sectionhint">${hint}</div>`:''}
+ <div class="recorded"><div class="recorded-head">Recorded · ${history.length}</div><div class="recorded-list">${recorded}</div></div></section>`
+}
+function phaseHistory(field){const list=row().events.filter(e=>e.kind==='phase');return list.flatMap((e,i)=>e[field]?[{number:i+1,text:e[field]}]:[])}
+function probeUI(){const r=row(),subs=results(r);
+ const codes=[['Standing entry','entry',ENTRIES],['First phase response','response',RESPONSES],['10-second consequence','consequence',EFFECTS]];
+ const blocks=codes.map(([name,field,vals])=>metricBox(name,
+  `<div class="chips">${vals.map(v=>btn(v,`phase('${field}','${v}')`,v==='+'?'good':v==='-'?'bad':'' )).join('')}</div>`,
+  phaseHistory(field),field)).join('');
+ const attempts=r.events.filter(e=>e.kind==='submission');
+ const subActions=`<div class="minirow">${btn('F +S',"addEvent({kind:'submission',side:'F'})",'good')}${btn('O +S',"addEvent({kind:'submission',side:'O'})",'bad')}<span class="quiet">F ${subs.f} · O ${subs.o}</span></div>`;
+ return `${blocks}${metricBox('Submissions',subActions,attempts.map(e=>e.side==='F'?'Focal · S':'Opponent · S'),'probe_sub')}
+ <div class="guide">Entry: P pull · T takedown · O other · R opponent first · N no entry · ? unknown. Response: A attack/advance · D defend/recover · H hold. Consequence: + focal benefit · = neutral · − opponent benefit. # labels link observations across the three boxes; blank remains missing.</div>`
+}
+function triangleUI(){const r=row(),events=r.events.filter(e=>e.kind==='triangle_exchange');
+ const a=`<div class="controlshead"><span class="quiet">Focal starts as</span>${selection('role',[['A','Attacker'],['D','Defender']])}</div>
+ <div class="sectionhint">Set role for each exchange. This selection stays until you change it.</div>
+ <div class="actions">${[['Attacker · HA sub','AH','good'],['Attacker · other sub','AO','good'],['Defender · points','DP','bad'],['Defender · HA sub','DH','bad'],['Defender · other sub','DO','bad']].map(([t,c,k])=>`<button class="${k}" onclick="triangleOutcome('${c}')">${escaped(t)}</button>`).join('')}</div>
+ <div class="minirow" style="margin-top:8px">${btn('Time · unresolved',"triangleOutcome('T')",'under')}${btn('Missed outcome',"triangleOutcome('?')",'under')}</div>`;
+ const h=events.map(e=>`${e.role==='A'?'Attacker':'Defender'} · ${e.result==='S'?'F S':e.result==='OS'?'O S':e.result==='P'?'F P':e.result==='OP'?'O P':e.result==='T'?'Time':'?'}${['HA','OTHER'].includes(e.finish)?` · ${e.finish==='HA'?'HA':'Other'} finish`:''}`);
+ return `${metricBox('Triangle exchanges',a,h,'triangle')}
+ <div class="guide">Attacker: any submission. Defender: first valid positional score or submission. Escaping the triangle by itself does not win or end an exchange. Change the attacker manually when restarting.</div>`
+}
+function dogUI(){const r=row(),ev=r.events.filter(e=>e.kind==='dogfight_exchange');
+ const a=`<div class="controlshead"><span class="quiet">Focal starts on</span>${selection('side',[['U','Underhook'],['W','Whizzer']])}</div>
+ <div class="minirow" style="margin:7px 0"><span class="quiet">Guard used (optional)</span>${selection('guard',[['','—'],['Y','Y'],['N','N'],['?','?']])}</div>
+ <div class="sectionhint">Set the starting side for each exchange. It stays selected until you change it.</div>
+ <div class="actions">${[['P','P','good'],['S','S','good'],['OP','OP','bad'],['OS','OS','bad'],['Neutral reset','E',''],['Time / unclear','T','']].map(([t,c,k])=>`<button class="${k}" onclick="dogOutcome('${c}')">${t}</button>`).join('')}</div>
+ <div class="minirow" style="margin-top:8px">${btn('Missed outcome',"dogOutcome('?')",'under')}</div>`;
+ const h=ev.map(e=>`${e.side==='U'?'Underhook':'Whizzer'} · ${e.result==='P'?'F P':e.result==='S'?'F S':e.result==='OP'?'O P':e.result==='OS'?'O S':e.result==='E'?'Neutral reset':e.result==='T'?'Time':'?'}${e.guard?` · guard ${e.guard}`:''}`);
+ return `${metricBox('Dogfight exchanges',a,h,'dogfight')}
+ <div class="guide">P/S = focal points/submission; OP/OS = opponent points/submission. Blank guard-use means not recorded, not N. Select the next starting side manually after resetting.</div>`
+}
+function pullUI(){const r=row(),d=r.draft,ev=r.events;
+ const entry=ev.filter(e=>e.kind==='pull_entry');
+ const ha=ev.filter(e=>e.kind==='ha_threat');
+ const pts=ev.filter(e=>e.kind==='points');
+ const subs=ev.filter(e=>e.kind==='submission');
+ const time=ev.filter(e=>e.kind==='time_result');
+ const header=`<div class="sectionhint"><b>No takedowns for either player.</b> Either may pull guard. Whoever ends up on top must work from there; no voluntary standing reset. Both can score or submit.</div>`;
+ const entryBox=metricBox('Guard pull attempts',`<div class="actions">${[
+  ['F arrived','F','Y','good'],['F prevented','F','N','bad'],['O arrived','O','Y','good'],['O prevented','O','N','bad'],['Both pulled','B','B',''],['Unclear','?','?','']
+ ].map(([t,actor,v,k])=>`<button class="${k}" onclick="pullEntry('${actor}','${v}')">${t}</button>`).join('')}</div>`,
+ entry.map(e=>`${e.actor==='F'?'Focal':e.actor==='O'?'Opponent':e.actor==='B'?'Both': '?'} · ${e.value==='Y'?'arrived':e.value==='N'?'prevented':e.value==='B'?'pull': '?'} · M${e.match}`),'pull_entry','F/O = athlete who attempted the pull. Both pulled is separate from an unsuccessful attempt.');
+ const haBox=metricBox('HA threat (forced defence)',`<div class="chips">${btn('F HA',"haThreat('F')",'good')}${btn('O HA',"haThreat('O')",'bad')}</div>`,
+ ha.map(e=>`${e.side==='F'?'Focal':'Opponent'} · HA · M${e.match}`),'ha_threat');
+ const pointBox=metricBox('GI points · continuous match',`<div class="minirow"><span class="quiet">Match ${d.match}</span></div><div class="score"><div class="kpi"><small>Focal points</small><b>${d.scoreF}</b></div><div class="kpi"><small>Opponent points</small><b>${d.scoreO}</b></div></div>
+ <div class="actions">${[['F +2','F',2,'good'],['F +3','F',3,'good'],['F +4','F',4,'good'],['O +2','O',2,'bad'],['O +3','O',3,'bad'],['O +4','O',4,'bad']].map(([t,side,points,k])=>`<button class="${k}" onclick="addPoints('${side}',${points})">${t}</button>`).join('')}</div>`,
+ pts.map(e=>`M${e.match} · ${e.side==='F'?'Focal':'Opponent'} +${e.points} (${e.scoreF}:${e.scoreO})`),'points','Points do not end the match; keep grappling.');
+ const subBox=metricBox('Submissions · end match',`<div class="chips">${btn('F · sub',"pendingSubmission('F')",'good')}${btn('O · sub',"pendingSubmission('O')",'bad')}</div>
+ ${d.pendingSub?`<div class="panel" style="margin-top:8px;border-color:var(--blue)"><b>${d.pendingSub==='F'?'Focal':'Opponent'} finish type</b><div class="chips" style="margin-top:8px">${btn('HA choke',"finishSubmission('HA')",'good')}${btn('Other',"finishSubmission('OTHER')")}${btn('Cancel',"pendingSubmission('"+d.pendingSub+"')",'under')}</div></div>`:''}`,
+ subs.map(e=>`M${e.match} · ${e.side==='F'?'Focal':'Opponent'} · ${e.finish==='HA'?'HA':'Other'} submission`),'submission','After a submission, restart standing; scores reset. No designated puller.');
+ const timeBox=metricBox('At buzzer (no submission)',`<div class="chips">${btn('F wins',"timeResult('F')",'good')}${btn('O wins',"timeResult('O')",'bad')}${btn('Tie',"timeResult('T')")}${btn('?',"timeResult('?')",'under')}</div>`,
+ time.map(e=>`M${e.match} · ${e.result==='F'?'Focal wins':e.result==='O'?'Opponent wins':e.result==='T'?'Tie':'?'} · ${e.scoreF}:${e.scoreO}`),'time_result');
+ return `${header}${entryBox}${haBox}${pointBox}${subBox}${timeBox}<div class="guide">Both athletes may pull; neither may takedown. The top player must work from top. Track observed pull attempts, HA threats, scores and submissions separately. Most points wins at the buzzer if no submission. Each box retains its own results and Undo.</div>`;
+}
+function exportTSV(){const heads=['session_id','run','date','attire','game_slot','game','round','planned_pairing','actual_pairing','focal_slot','focal_id','focal_band','opponent_id','opponent_band','coverage','event_index','event_type','entry','phase_response','consequence_10s','starting_role','starting_side','guard_used','pull_actor','pull_arrival','scoring_side','points','finish_type','outcome','match_no','score_focal_after','score_opponent_after','note'];let lines=[heads.join('\t')];
+ const clean=x=>String(x==null?'':x).replace(/[\t\r\n]/g,' ');
+ for(const b of BLOCKS)for(const rd of b.rounds)for(const slot of b.slots){const r=state.records[rowKey(b.key,rd,slot)],p=state.roster[slot];const plan=b.probe?'unscaffolded':rd==='R1'?'within':'adjacent';let actual='';if(p.band&&r.opponentBand){if(p.band===r.opponentBand)actual='within';else{const n=+p.band.slice(1),m=+r.opponentBand.slice(1);actual=(n<=2&&m<=2)||(n>=3&&m>=3)?'adjacent':'other'}}
+ const meta=[SESSION.id,runId,state.date,run().attire,b.key,b.name,rd,plan,actual,slot,p.name,b.probe?'':p.band,r.opponent,b.probe?'':r.opponentBand,r.coverage];
+ const records=[{kind:'row_meta',idx:''},...r.events];for(const e of records){const x={event_index:e.idx,event_type:e.kind,entry:e.entry,phase_response:e.response,consequence_10s:e.consequence,starting_role:e.role,starting_side:e.side&&e.kind==='dogfight_exchange'?e.side:'',guard_used:e.guard,pull_actor:e.actor,pull_arrival:e.value,scoring_side:['points','submission','ha_threat'].includes(e.kind)?e.side:'',points:e.points,finish_type:e.finish,outcome:e.result,match_no:e.match,score_focal_after:e.scoreF,score_opponent_after:e.scoreO};
+ const row=[...meta,...heads.slice(15,-1).map(k=>x[k]),r.note];lines.push(row.map(clean).join('\t'))}}
+ return lines.join('\n')}
+function showExport(){flush();view.showExport=!view.showExport;render()}
+function copyExport(){const txt=exportTSV();const n=el('exportText');if(n){n.value=txt;n.select();n.setSelectionRange(0,txt.length)}if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).then(()=>{const s=el('exportInfo');if(s)s.textContent='Copied TSV';}).catch(()=>{try{document.execCommand('copy')}catch(e){};const s=el('exportInfo');if(s)s.textContent='Selected — copy manually if needed';});}else{try{document.execCommand('copy')}catch(e){};const s=el('exportInfo');if(s)s.textContent='Selected — copy manually if needed'}}
+function downloadExport(){const blob=new Blob([exportTSV()],{type:'text/tab-separated-values;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`${SESSION.id}-${runId}-${state.date||'undated'}.tsv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function render(){const b=block(),r=row(),slots=b.slots,events=r.events;const top=`<main><header><h1>${escaped(SESSION.title)}</h1><span id="saved" class="muted">Offline · autosave</span></header>
+<div class="runbar"><div class="segment">${RUNS.map(z=>`<button class="${runId===z.id?'on':''}" onclick="chooseRun('${z.id}')">${escaped(z.label)}</button>`).join('')}</div><input type="date" aria-label="Actual session date" value="${escaped(state.date)}" onchange="setDate(this.value)"></div>
+<div class="nav">${BLOCKS.map(x=>`<button class="${view.block===x.key?'on':''} ${x.probe?'probe':''}" onclick="chooseBlock('${x.key}')">${escaped(x.tab)}</button>`).join('')}</div>
+<div class="panel"><div class="picker"><div class="segment">${slots.map(z=>`<button class="${view.slot===z?'on':''}" onclick="chooseSlot('${z}')">${escaped(z)}${state.roster[z].name?` · ${escaped(state.roster[z].name)}`:''}</button>`).join('')}</div>
+<div class="segment">${b.rounds.length>1?b.rounds.map(d=>`<button class="${view.round===d?'on':''}" onclick="chooseRound('${d}')">${escaped(d)}</button>`).join(''):`<span class="muted">${escaped(view.round)} · 5 min</span>`}</div></div>
+<div class="guide"><b>${escaped(b.name)}</b> · ${escaped(b.probe?'No band pairing':view.round==='R1'?'Within band':'Adjacent bands')} · 5 min <details><summary>Rules</summary>${escaped(b.rule)}</details></div></div>`;
+const body=b.probe?probeUI():b.key==='T'?triangleUI():b.key==='D'?dogUI():pullUI();
+const after=`${identity()}<section class="panel"><div class="controlshead"><b>Record · ${escaped(view.slot)} ${escaped(view.round)}</b><span class="quiet">${events.length} events</span></div>${body}</section>
+<section class="panel"><input class="notes" aria-label="Coach note" placeholder="Optional coach note (separate from measured events)" value="${escaped(r.note)}" oninput="setRow('note',this.value)"></section>
+<div class="footer"><span class="muted">${escaped(run().attire)} · 2 foci / block · 8 unique slots</span><button class="btn primary" onclick="showExport()">${view.showExport?'Hide export':'Export TSV'}</button></div>
+${view.showExport?`<div class="export panel"><div class="minirow"><button class="btn primary" onclick="copyExport()">Copy TSV</button><button class="btn" onclick="downloadExport()">Download .tsv</button><span class="muted" id="exportInfo">One metadata row per observation slot + one row per recorded event</span></div><textarea id="exportText" readonly>${escaped(exportTSV())}</textarea></div>`:''}
+<p class="notice">Separate runs save independently on this device. Export each day after class. Switch the active focal lane when you shift attention; do not log an unobserved event as a failure. Opening and closing probes share focal IDs but retain separate opponent IDs.</p></main>`;
+el('app').innerHTML=top+after}
+load();
+</script>
+</body>
+</html>

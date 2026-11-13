@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111820">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Pinning S2 · Coaching clipboard</title>
+<style>
+:root{color-scheme:dark;--bg:#111820;--card:#1c2630;--sub:#25323e;--line:#374653;--text:#f3f7f9;--dim:#adbbc7;--soft:#8497a7;--accent:#76baff;--accentbg:#193b5a;--ok:#77d5a3;--bad:#f5a79f;--warn:#f4d083}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:default;opacity:.36}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+main{max-width:730px;margin:0 auto;padding:16px 14px 96px;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+header{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-bottom:8px}
+.eyebrow{color:var(--accent);font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}
+h1{margin:3px 0 0;font-size:22px;line-height:1.1;letter-spacing:-.025em}
+.muted{color:var(--dim)}.tiny{font-size:12px}.small{font-size:13px}.topmeta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px;font-size:12px;flex-wrap:wrap}.status{color:var(--ok)}.status.error{color:var(--bad);font-weight:700}
+.btn{background:var(--sub);border:1px solid var(--line);border-radius:10px;color:var(--text);min-height:44px;padding:10px 13px;font-weight:700;white-space:normal}
+.btn.primary{background:var(--accentbg);border-color:#568ec0;color:#d8edff}.btn.slim{min-height:40px;padding:8px 11px;font-size:13px}
+.btn.ghost{background:transparent;color:var(--dim)}.btn:active:not(:disabled){filter:brightness(1.16)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px;margin:12px 0}
+.navlabel{display:block;margin:15px 0 7px;color:var(--dim);font-size:12px;font-weight:800;letter-spacing:.025em;text-transform:uppercase}
+.selectrow{display:grid;gap:6px}.selectrow.games{grid-template-columns:repeat(3,minmax(0,1fr))}.selectrow.rounds{grid-template-columns:repeat(4,minmax(0,1fr))}.selectrow.athletes{grid-template-columns:repeat(3,minmax(0,1fr))}
+.selectrow button{min-width:0;min-height:52px;padding:8px 4px;border:1px solid var(--line);background:var(--card);border-radius:10px;color:var(--dim);font-size:14px;font-weight:700}
+.selectrow button .sub{display:block;font-size:11px;color:var(--soft);font-weight:500;margin-top:2px}
+.selectrow.athletes{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0;box-shadow:0 6px 8px -8px #000}.selectrow button.selected{background:var(--accentbg);border-color:var(--accent);color:#ecf6ff}.selectrow button.selected .sub{color:#b6dcff}
+.context{display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px;margin:14px 0 7px;padding:12px;border-radius:12px;background:#152b3c;border:1px solid #3b6586}.context strong{font-size:16px}.context .tag{padding:3px 7px;border-radius:6px;background:#274761;color:#cce8ff;font-size:12px;font-weight:700}
+.rolebox{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:12px 0 4px}.rolebox>strong{font-size:14px}.rolebuttons{display:flex;gap:6px}.rolebtn{min-width:80px;min-height:48px;border-radius:10px;background:var(--sub);border:1px solid var(--line);color:var(--dim);font-weight:800}.rolebtn.active.top{background:#16442c;border-color:#68be94;color:#d6ffe6}.rolebtn.active.bottom{background:#56401a;border-color:#d2a44e;color:#ffedb7}
+.oppline{display:flex;gap:8px;align-items:center;margin:12px 0 2px}.oppline label{color:var(--dim);font-size:12px;min-width:66px}.oppline input{flex:1;min-width:0}
+input,select,textarea{background:var(--sub);color:var(--text);border:1px solid var(--line);border-radius:9px;min-height:43px;padding:9px 11px;width:100%}input::placeholder,textarea::placeholder{color:#91a0ab}textarea{resize:vertical;min-height:69px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;margin:9px 0}
+.panelhead{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:5px}
+.panelhead h2{font-size:17px;line-height:1.2;margin:0}.count{background:#35424e;color:#d3e0e8;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:800;white-space:nowrap}
+.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.actions.one{grid-template-columns:1fr}.actions.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.act{min-height:44px;padding:6px 6px;background:var(--sub);border:1px solid #566773;color:#f7fbff;border-radius:10px;font-weight:800;font-size:14px;line-height:1.15}.act.good{border-color:#407a61;background:#1a3c2e}.act.bad{border-color:#93645c;background:#46302f}.act.neutral{border-color:#6f8192;background:#2a3b4b}
+.history-head{display:flex;justify-content:space-between;align-items:center;margin:11px 0 4px}.history-head strong{color:var(--dim);font-size:12px}.undo{background:transparent;border:1px solid var(--line);color:#dce8ef;border-radius:8px;min-height:38px;padding:7px 13px;font-size:13px;font-weight:800}
+.history{list-style:none;padding:0;margin:0;border-top:1px solid var(--line);max-height:185px;overflow-y:auto;overscroll-behavior:contain}
+.history li{display:block;border-bottom:1px solid #34414c;padding:7px 1px;font-size:13px}.history li .mainline{display:flex;align-items:baseline;gap:8px}.history .num{font-variant-numeric:tabular-nums;color:var(--soft);min-width:22px}.history .event{flex:1}.history .time{color:var(--soft);font-variant-numeric:tabular-nums;font-size:11px;white-space:nowrap}
+.history .empty{color:var(--soft);padding:9px 2px;border:0;font-style:italic}.eventnote-toggle{border:1px solid var(--line);background:transparent;border-radius:7px;color:var(--accent);min-height:30px;font-size:12px;padding:5px 9px;margin:7px 0 0 29px}.eventnote{margin:7px 0 3px 29px}.eventnote label{display:block;font-size:12px;color:var(--dim);margin-bottom:5px}.eventnote textarea{min-height:66px;font-size:14px}.written-note{margin:5px 0 0 29px;font-size:12px;color:var(--dim);line-height:1.4;overflow-wrap:anywhere}.pairtag{display:inline-flex;padding:4px 8px;border-radius:6px;background:#34404a;color:#f1f5f8;font-weight:800;font-size:12px}.roundhint{font-size:12px;color:var(--dim);margin:7px 0 0}.context-stacked{display:flex;flex-direction:column;gap:4px}.oppbutton{min-height:32px;padding:5px 9px;margin-top:6px;font-size:12px}.eventrole{color:var(--soft);font-size:11px;font-weight:500}
+.notice{padding:13px;background:#2c332c;border:1px solid #57634d;color:#f0eacf;border-radius:12px;font-size:14px;line-height:1.5;margin:15px 0}
+.sectiontoggle{width:100%;border:0;background:transparent;color:var(--text);font-weight:800;font-size:15px;text-align:left;padding:0;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.formrows{display:grid;gap:10px;margin-top:12px}.formathlete{padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--sub)}.formathlete strong{display:block;font-size:13px;margin-bottom:7px}.forminputs{display:grid;grid-template-columns:1fr 1.2fr;gap:7px}.forminputs input,.forminputs select{background:var(--card)}
+.details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin:13px 0}.details summary{cursor:pointer;font-weight:800;font-size:14px;user-select:none}.details .body{padding-top:9px;color:var(--dim);font-size:13px;line-height:1.5}.details p{margin:5px 0 9px}.details strong{color:var(--text)}
+.noteslabel{display:block;color:var(--dim);font-size:12px;font-weight:800;margin:14px 0 5px}
+.exportbar{margin:20px 0 10px}.exportbar .actions{grid-template-columns:repeat(2,minmax(0,1fr));margin:12px 0}.preview{width:100%;height:220px;resize:vertical;white-space:pre;overflow:auto;font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;color:#daeaf7}
+.infonote{color:var(--soft);font-size:12px;line-height:1.5;margin-top:10px}
+@media(max-width:380px){main{padding-left:9px;padding-right:9px}.selectrow button{font-size:12px}.context strong{font-size:14px}.rolebtn{min-width:70px}.selectrow.rounds button{font-size:12px;padding:7px 2px}.selectrow.rounds button .sub{font-size:10px}.actions.three{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Compact tablet view: make the recording panels fully visible together.
+   Keep the focal-athlete nav sticky; it is deliberately not repositioned. */
+@media(min-width:680px){
+  main{max-width:1100px;padding:10px 16px 48px}
+  header{margin-bottom:4px}
+  h1{font-size:20px}
+  .topmeta{margin-bottom:5px;font-size:11px}
+  .navlabel{margin:7px 0 4px;font-size:11px}
+  .details{padding:8px 10px;margin:7px 0}
+  .selectrow{gap:5px}
+  .selectrow button{min-height:38px;padding:4px 5px;font-size:12px;border-radius:8px;line-height:1.15}
+  .selectrow button .sub{font-size:10px;margin-top:1px}
+  .selectrow.athletes{position:sticky;top:0;z-index:5;padding:3px 0;box-shadow:0 6px 8px -8px #000}
+  .context{margin:7px 0 5px;padding:7px 9px;border-radius:9px}
+  .context strong{font-size:14px}
+  .context .tag,.pairtag{font-size:11px;padding:3px 6px}
+  .rolebox{margin:5px 0 3px}
+  .rolebox>strong{font-size:12px}
+  .rolebtn{min-height:34px;min-width:72px;padding:4px 8px;border-radius:8px;font-size:12px}
+  .roundhint{display:none}
+  .oppline{margin:6px 0 5px}
+  .oppline label{font-size:11px;min-width:58px}
+  input,select{min-height:34px;padding:5px 8px;font-size:13px}
+  .oppbutton{min-height:27px;margin-top:1px;font-size:11px}
+  .panel{display:grid;grid-template-columns:180px minmax(0,1fr);column-gap:9px;align-items:start;margin:6px 0;padding:7px 9px;border-radius:10px}
+  .panelhead{grid-column:1;grid-row:1 / 4;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:5px;margin:2px 0 0}
+  .panelhead h2{font-size:14px;line-height:1.25}
+  .count{padding:2px 7px;font-size:10px}
+  .panel>.actions{grid-column:2;grid-row:1;grid-template-columns:repeat(auto-fit,minmax(86px,1fr));gap:5px}
+  .act{min-height:35px;padding:4px 3px;border-radius:7px;font-size:11px;line-height:1.15}
+  .panel>.history-head{grid-column:2;grid-row:2;display:flex;margin:3px 0 2px}
+  .history-head strong{font-size:11px}
+  .undo{min-height:25px;padding:3px 9px;border-radius:6px;font-size:11px}
+  .panel>.history{grid-column:2;grid-row:3;max-height:68px}
+  .history li{padding:4px 1px;font-size:11px}
+  .history .empty{padding:3px 1px;font-size:10px}
+  .history .time{font-size:10px}
+  .eventrole{font-size:10px}
+  .eventnote-toggle{min-height:22px;padding:2px 6px;margin:3px 0 0 29px;font-size:10px}
+  .written-note{font-size:11px}
+  .noteslabel{margin:7px 0 3px;font-size:11px}
+  textarea{min-height:47px;padding:6px 8px;font-size:12px}
+  .exportbar{margin-top:9px}
+  .infonote{font-size:11px;margin-top:5px}
+}
+@media(min-width:680px) and (max-width:790px){
+  .panel{grid-template-columns:148px minmax(0,1fr)}
+  .panel>.actions{grid-template-columns:repeat(auto-fit,minmax(82px,1fr))}
+  .act{font-size:10.5px}
+}
+</style>
+</head>
+<body>
+<main id="app"><noscript>This clipboard requires JavaScript, but works offline.</noscript></main>
+<script>
+'use strict';
+// Based on the Project CLA clipboard plus the existing Session 1 mobile extension.
+// Explicit UI updates for Session 2: one 6-minute W probe + 4 rounds per main game;
+// W role switches are manual after bottom wins; G1/G2 roles are fixed within rounds.
+// Win types per game; event-local top-action notes; stable TSV export.
+// ---- session configuration (practice design) ---------------------------
+const SESSION={id:'pinning-s2-probe-bands-v2',title:'Pinning · Session 2'};
+const LEGACY_KEY='matclip:pinning-s2-two-games-bands-v1';
+const BANDS=[{id:'developing',label:'Up to 3 years'},{id:'advanced',label:'Over 3 years / serious competitors'}];
+const GAMES=[
+ {id:'W',tab:'W · Probe',short:'Recurring guard · 6m',top:'Pass the legs and hold for as long as possible. If guard returns, attempt to pass again. No win.',bottom:'Get chest to back, get on top, or submit P1.'},
+ {id:'G1',tab:'1 · Top / Stand',short:'Get on top or stand',top:'Pass the legs and hold for as long as possible. If guard returns, attempt to pass again. No win.',bottom:'Get on top or stand up.'},
+ {id:'G2',tab:'2 · All threats',short:'Back, top, stand, submit',top:'Pass the legs and hold for as long as possible. If guard returns, attempt to pass again. No win.',bottom:'Get chest to back, get on top, stand up, or submit P1.'}
+];
+const MEASURES=[
+ {id:'bottom',title:'Bottom actions & wins',options:[{id:'got_top',label:'Got on top · win',tone:'good'},{id:'stood',label:'Stood · win',tone:'good'},{id:'back',label:'Chest to back · win',tone:'good'},{id:'tap',label:'Submission · win',tone:'good'},{id:'stand_try',label:'Stand attempt',tone:'neutral'}]},
+ {id:'top_ground',title:'Top becomes seated / supine',options:[{id:'lost',label:'Top seated / supine',tone:'bad'}]},
+ {id:'pass',title:'Pass & hold',options:[{id:'passed',label:'Pass',tone:'good'},{id:'returned',label:'Guard returned',tone:'neutral'},{id:'bell',label:'Held at bell',tone:'good'}]}
+];
+const SLOTS=3,MAIN_ROUNDS=4,KEY='matclip:'+SESSION.id;
+function roundCount(gid){return gid==='W'?1:MAIN_ROUNDS;}
+function roundMinutes(gid){return gid==='W'?6:3;}
+// -----------------------------------------------------------------------
+function freshRound(){return {opponent:'',role:null,roleHistory:[],events:[],note:''};}
+function fresh(){const d={version:3,date:'',seq:0,subjects:Array.from({length:SLOTS},()=>({name:'',band:''})),rounds:{},nav:{game:'W',round:1,athlete:0}};for(const g of GAMES)for(let r=1;r<=roundCount(g.id);r++)d.rounds[g.id+'-'+r]=Array.from({length:SLOTS},freshRound);return d;}
+let data=fresh();
+const ui={game:'W',round:1,athlete:0,setupOpen:true,exportOpen:false,exportPreview:false,editing:null,warning:'',saveLabel:'Not yet saved'};
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function clean(v){return String(v??'').replace(/\t/g,' ').replace(/\r?\n/g,' / ');}
+function game(){return GAMES.find(g=>g.id===ui.game);}
+function roundCtx(gid=ui.game,r=ui.round,i=ui.athlete){return data.rounds[gid+'-'+r][i];}
+function athlete(i=ui.athlete){return data.subjects[i];}
+function athleteLabel(i){return (data.subjects[i].name||'Athlete '+(i+1)).trim();}
+function bandLabel(v){return BANDS.find(x=>x.id===v)?.label||'Band not set';}
+function pairing(r=ui.round,gid=ui.game){return gid==='W'?'Recurring probe':r<=2?'Within band':'Mixed bands';}
+function clock(){return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data));ui.warning='';ui.saveLabel='Saved locally · '+clock();}catch(e){ui.warning='Save failed. Export your data before closing.';ui.saveLabel='Not saved';}updateSaveUI();}
+function updateSaveUI(){const el=document.getElementById('save-status');if(el){el.textContent=ui.warning||ui.saveLabel;el.className='status'+(ui.warning?' error':'');}}
+function load(){let imported=false;try{
+ const current=localStorage.getItem(KEY);
+ const old=!current?localStorage.getItem(LEGACY_KEY):null;
+ const raw=current||old;
+ if(raw){const d=JSON.parse(raw);if(d&&d.version===3&&Array.isArray(d.subjects)&&d.rounds){
+  const n=fresh();n.date=String(d.date||'');n.seq=Number.isInteger(d.seq)?d.seq:0;
+  n.subjects.forEach((a,i)=>{if(d.subjects[i]){a.name=String(d.subjects[i].name||'');a.band=String(d.subjects[i].band||'');}});
+  for(const key of Object.keys(n.rounds)){const v=d.rounds[key];if(Array.isArray(v))v.slice(0,SLOTS).forEach((a,i)=>{if(!a)return;n.rounds[key][i]={opponent:String(a.opponent||''),role:['top','bottom'].includes(a.role)?a.role:null,roleHistory:Array.isArray(a.roleHistory)?a.roleHistory:[],events:Array.isArray(a.events)?a.events:[],note:String(a.note||'')};});}
+  data=n;
+  if(d.nav&&GAMES.some(g=>g.id===d.nav.game)&&Number.isInteger(d.nav.round)&&d.nav.round>=1&&d.nav.round<=roundCount(d.nav.game)&&Number.isInteger(d.nav.athlete)&&d.nav.athlete>=0&&d.nav.athlete<SLOTS){ui.game=d.nav.game;ui.round=d.nav.round;ui.athlete=d.nav.athlete;data.nav={game:ui.game,round:ui.round,athlete:ui.athlete};}
+  imported=!!old;ui.saveLabel=imported?'Imported previous S2 draft':'Restored local draft';
+ }}
+}catch(e){ui.warning='Could not restore the local draft.';}
+ui.setupOpen=!data.subjects.some(s=>s.name);render();if(imported)save();}
+function setContext(which,value){if(which==='game'&&GAMES.some(g=>g.id===value)){ui.game=value;if(ui.round>roundCount(ui.game))ui.round=1;}if(which==='round'&&Number.isInteger(Number(value))&&Number(value)>=1&&Number(value)<=roundCount(ui.game))ui.round=Number(value);if(which==='athlete'&&Number.isInteger(Number(value))&&Number(value)>=0&&Number(value)<SLOTS)ui.athlete=Number(value);data.nav={game:ui.game,round:ui.round,athlete:ui.athlete};ui.editing=null;ui.exportPreview=false;save();render();}
+function setSubject(i,field,value){if(!data.subjects[i])return;if(field==='name')data.subjects[i].name=value;if(field==='band'&&['',...BANDS.map(b=>b.id)].includes(value))data.subjects[i].band=value;save();}
+function setDate(value){data.date=value;save();}
+function setRoundText(field,value){if(!['opponent','note'].includes(field))return;roundCtx()[field]=value;save();}
+function setRole(role){if(!['top','bottom'].includes(role))return;const ctx=roundCtx();if(ctx.role===role)return;ctx.role=role;ctx.roleHistory.push({role,time:clock()});save();render();}
+function copyPrevOpponent(){if(![2,4].includes(ui.round))return;const prev=roundCtx(ui.game,ui.round-1,ui.athlete),ctx=roundCtx();if(!prev.opponent)return;ctx.opponent=prev.opponent;save();render();}
+function optionsFor(mid){const m=MEASURES.find(x=>x.id===mid);if(!m)return [];if(mid==='bottom'&&ui.game==='G1')return m.options.filter(o=>['got_top','stood','stand_try'].includes(o.id));if(mid==='bottom'&&ui.game==='W')return m.options.map(o=>o.id==='stood'?{...o,label:'Stood · reset'}:o);return m.options;}
+function isWin(vid,gid=ui.game){if(gid==='W')return ['got_top','back','tap'].includes(vid);if(gid==='G1')return ['got_top','stood'].includes(vid);return ['got_top','stood','back','tap'].includes(vid);}
+function record(mid,value){const ctx=roundCtx();if(!['top','bottom'].includes(ctx.role))return;if(!optionsFor(mid).some(o=>o.id===value))return;const e={id:++data.seq,measure:mid,value,time:clock(),role:ctx.role,note:''};ctx.events.push(e);save();render();}
+function undo(mid){const ctx=roundCtx();for(let i=ctx.events.length-1;i>=0;i--)if(ctx.events[i].measure===mid){const removed=ctx.events.splice(i,1)[0];if(ui.editing===removed.id)ui.editing=null;save();render();return;}}
+function labelEvent(mid,value,gid=ui.game){if(mid==='bottom'&&value==='stood'&&gid==='W')return 'Stood · reset (not a win)';return MEASURES.find(m=>m.id===mid)?.options.find(o=>o.id===value)?.label||value;}
+function setEventNote(id,value){const e=roundCtx().events.find(e=>e.id===id);if(e){e.note=value;save();}}
+function toggleEventNote(id){ui.editing=ui.editing===id?null:id;render();if(ui.editing===id){const el=document.getElementById('event-note-'+id);if(el)el.focus();}}
+function btnAct(mid,o){return `<button class="act ${o.tone||''}" onclick="record('${mid}','${o.id}')" ${roundCtx().role?'':'disabled'}>${esc(o.label)}</button>`;}
+function panel(m){const ctx=roundCtx(),options=optionsFor(m.id),events=ctx.events.filter(e=>e.measure===m.id),title=m.title;
+ const hist=events.length?events.map((e,i)=>{
+  const outcome=m.id==='bottom'&&isWin(e.value)?(e.role==='top'?' · focal lost':e.role==='bottom'?' · focal won':' · winner unclear'):'';
+  const actionNote=(m.id==='bottom'||m.id==='top_ground');
+  const noteUI=actionNote?`<button class="eventnote-toggle" onclick="toggleEventNote(${e.id})">${e.note?'Edit':'Add'} top-action note</button>${e.note&&ui.editing!==e.id?`<p class="written-note">Top was: ${esc(e.note)}</p>`:''}${ui.editing===e.id?`<div class="eventnote"><label for="event-note-${e.id}">What was top doing immediately before this?</label><textarea id="event-note-${e.id}" oninput="setEventNote(${e.id},this.value)" placeholder="Observed action, not an assumed intention">${esc(e.note||'')}</textarea></div>`:''}`:'';
+  return `<li><div class="mainline"><span class="num">${i+1}.</span><span class="event">${esc(labelEvent(m.id,e.value))}<span class="eventrole"> · focal ${esc(e.role==='top'?'TOP':'BOTTOM')}${esc(outcome)}</span></span><span class="time">${esc(e.time||'')}</span></div>${noteUI}</li>`;
+ }).join(''):`<li class="empty">No events recorded (not the same as zero).</li>`;
+ return `<section class="panel" aria-label="${esc(title)}"><div class="panelhead"><h2>${esc(title)}</h2><span class="count">${events.length} recorded</span></div><div class="actions ${options.length===1?'one':options.length===3?'three':''}">${options.map(o=>btnAct(m.id,o)).join('')}</div><div class="history-head"><strong>Recorded history</strong><button class="undo" ${events.length?'':'disabled'} onclick="undo('${m.id}')">Undo last</button></div><ol class="history">${hist}</ol></section>`;
+}
+function render(){const g=game(),ctx=roundCtx(),name=athleteLabel(ui.athlete),band=bandLabel(athlete().band),pr=pairing();
+ const games=GAMES.map(x=>`<button class="${ui.game===x.id?'selected':''}" aria-pressed="${ui.game===x.id}" onclick="setContext('game','${x.id}')">${esc(x.id)}<span class="sub">${esc(x.short)}</span></button>`).join('');
+ const rounds=Array.from({length:roundCount(ui.game)},(_,i)=>i+1).map(r=>`<button class="${ui.round===r?'selected':''}" aria-pressed="${ui.round===r}" onclick="setContext('round',${r})">R${r}<span class="sub">${ui.game==='W'?'Probe · 6m':(r<=2?'Same band':'Mixed')+' · 3m'}</span></button>`).join('');
+ const subjects=data.subjects.map((a,i)=>`<button class="${i===ui.athlete?'selected':''}" aria-pressed="${i===ui.athlete}" onclick="setContext('athlete',${i})">${esc((a.name||'Athlete '+(i+1)).slice(0,18))}<span class="sub">${esc((roundCtx(ui.game,ui.round,i).role||'not set').toUpperCase())}</span></button>`).join('');
+ const setup=data.subjects.map((a,i)=>`<div class="formathlete"><strong>Focal athlete ${i+1}</strong><div class="forminputs"><input value="${esc(a.name)}" placeholder="Name" aria-label="Athlete ${i+1} name" oninput="setSubject(${i},'name',this.value)" onchange="render()"><select aria-label="Athlete ${i+1} band" onchange="setSubject(${i},'band',this.value);render()"><option value="" ${a.band?'':'selected'}>Select band</option>${BANDS.map(b=>`<option value="${b.id}" ${a.band===b.id?'selected':''}>${esc(b.label)}</option>`).join('')}</select></div></div>`).join('');
+ const prev=ui.game!=='W'&&[2,4].includes(ui.round)?roundCtx(ui.game,ui.round-1,ui.athlete).opponent:'';
+ document.getElementById('app').innerHTML=`
+<header><div><div class="eyebrow">Practice Design · Coaching clipboard</div><h1>${esc(SESSION.title)}</h1></div><button class="btn primary" onclick="toggleExport()">Export TSV</button></header>
+<div class="topmeta"><span class="muted">W · 6 min + 2 games · 4 × 3 min each · ${esc(data.date||'date not set')}</span><span id="save-status" class="status">${esc(ui.saveLabel)}</span></div>
+<section class="details" aria-label="Set up athletes"><button class="sectiontoggle" onclick="toggleSetup()">Session date &amp; three focal athletes <span aria-hidden="true">${ui.setupOpen?'▴':'▾'}</span></button>${ui.setupOpen?`<div class="formrows"><label class="noteslabel" for="sessiondate">Session date (optional)</label><input type="date" id="sessiondate" value="${esc(data.date)}" onchange="setDate(this.value);render()">${setup}</div><p class="infonote">These identities organise your observations only. Every athlete in the room uses the same practice rules.</p>`:''}</section>
+<span class="navlabel">Game</span><nav class="selectrow games" aria-label="Game">${games}</nav>
+<span class="navlabel">${ui.game==='W'?'Probe round · 6 minutes':'Round · 3 minutes each'}</span><nav class="selectrow rounds" aria-label="Round">${rounds}</nav>
+<span class="navlabel">Focal athlete</span><nav class="selectrow athletes" aria-label="Focal athlete">${subjects}</nav>
+<div class="context" aria-label="Active recording context"><div class="context-stacked"><strong>${esc(g.id)} · R${ui.round} · ${esc(name)}</strong><span class="muted tiny">${esc(g.short)}</span></div><span class="tag">${esc(ctx.role?ctx.role.toUpperCase():'ROLE NOT SET')}</span><span class="pairtag">${esc(pr)}</span></div>
+<div class="rolebox"><strong>Focal athlete in this round:</strong><div class="rolebuttons"><button class="rolebtn ${ctx.role==='top'?'active top':''}" aria-pressed="${ctx.role==='top'}" onclick="setRole('top')">TOP</button><button class="rolebtn ${ctx.role==='bottom'?'active bottom':''}" aria-pressed="${ctx.role==='bottom'}" onclick="setRole('bottom')">BOTTOM</button></div></div>
+<p class="roundhint">${ui.game==='W'?'Probe: switch TOP/BOTTOM after a bottom win. Standing alone resets without a role switch.':'Main games: fixed roles within the round. R2 reverses R1; R4 reverses R3.'}</p>
+<div class="oppline"><label for="opponent">Opponent</label><input id="opponent" value="${esc(ctx.opponent)}" placeholder="Partner for this round (optional)" oninput="setRoundText('opponent',this.value)"></div>
+${prev&&!ctx.opponent?`<button class="btn ghost oppbutton" onclick="copyPrevOpponent()">Use R${ui.round-1} partner: ${esc(prev)}</button>`:''}
+${ctx.role?'':`<div class="notice">Choose TOP or BOTTOM before recording. The clipboard will never change roles automatically.</div>`}
+${MEASURES.map(panel).join('')}
+<label class="noteslabel" for="note">Coach note · ${esc(name)} / ${esc(g.id)} / R${ui.round}</label><textarea id="note" placeholder="What was top doing? Bottom’s response? Forced vs self-initiated? Uncertain cases?" oninput="setRoundText('note',this.value)">${esc(ctx.note)}</textarea>
+<details class="details"><summary>Game rules &amp; role rotation</summary><div class="body"><p><strong>P1 top:</strong> ${esc(g.top)}</p><p><strong>P2 bottom:</strong> ${esc(g.bottom)}</p>${ui.game==='W'?`<p><strong>Probe:</strong> Six minutes. After bottom gets chest to back, gets on top or submits, switch top/bottom and restart seated guard. If bottom stands, reset with the same roles; standing is not a named win. Tap the new focal role manually when it changes.</p>`:`<p><strong>Main game:</strong> After bottom wins, reset to seated guard with the SAME roles. Reverse roles only at the next 3-minute round. R1–R2 same-band pair; R3–R4 mixed-band pair.</p>`}<p><strong>Passing:</strong> Hold as long as possible, then pass again if guard returns. Passing does not score a win.</p><p><strong>Safety:</strong> Stop immediately on a tap. In G1, submission is not a designated win; reset safely with the same roles.</p><p><strong>Coach only:</strong> Keep the invariant withheld. Record the recurring warm-up probe; the separate standing section remains unmeasured.</p></div></details>
+<section class="details exportbar" id="exportarea"><button class="sectiontoggle" onclick="toggleExport()">Export this session <span aria-hidden="true">${ui.exportOpen?'▴':'▾'}</span></button>${ui.exportOpen?`<p class="infonote">Separate W/G1/G2 rows include duration, role history, opponent and event timestamps. Export after practice; local storage is temporary.</p><div class="actions"><button class="btn primary" onclick="downloadTSV()">Download TSV</button><button class="btn" onclick="copyTSV()">Copy TSV</button></div><button class="btn slim ghost" onclick="togglePreview()">${ui.exportPreview?'Hide preview':'Show TSV preview'}</button>${ui.exportPreview?`<textarea class="preview" readonly aria-label="TSV preview">${esc(tsv())}</textarea>`:''}<div class="small" id="copy-status" aria-live="polite"></div>`:''}</section>
+<p class="infonote">Record either focal role. For W, manually change TOP/BOTTOM after a bottom win; in G1/G2, roles stay fixed within each round. Export before replacing this file.</p>`;
+ updateSaveUI();}
+function toggleSetup(){ui.setupOpen=!ui.setupOpen;render();}
+function toggleExport(){ui.exportOpen=!ui.exportOpen;render();if(ui.exportOpen)document.getElementById('exportarea')?.scrollIntoView?.({block:'nearest',behavior:'smooth'});}
+function togglePreview(){ui.exportPreview=!ui.exportPreview;render();}
+function historyText(ctx,mid,gid){return ctx.events.filter(e=>e.measure===mid).map(e=>{const role='focal-'+(e.role||'unknown');const winner=mid==='bottom'&&isWin(e.value,gid)?(e.role==='bottom'?' [winner=focal]':' [winner=opponent]'):'';return `${role}${winner}: ${labelEvent(mid,e.value,gid)}@${e.time||'?'}${e.note?' [top before: '+e.note+']':''}`;}).join(' / ');}
+function tsv(){const lines=['session_id\tsession_date\tgame\tround\tround_minutes\tpairing\tfocal_athlete\tband\topponent\tfocal_role\trole_history\tbottom_actions_wins\ttop_seated_supine\tpass_and_hold\tcoach_note'];for(const g of GAMES)for(let r=1;r<=roundCount(g.id);r++)for(let i=0;i<SLOTS;i++){const a=data.subjects[i],ctx=roundCtx(g.id,r,i);const present=ctx.events.length||ctx.roleHistory.length||ctx.note.trim()||ctx.opponent.trim();if(!present)continue;const row=[SESSION.id,data.date,g.id,String(r),String(roundMinutes(g.id)),pairing(r,g.id),a.name||`Athlete ${i+1}`,bandLabel(a.band),ctx.opponent,ctx.role||'',ctx.roleHistory.map(h=>`${h.role}@${h.time||'?'}`).join(' / '),historyText(ctx,'bottom',g.id),historyText(ctx,'top_ground',g.id),historyText(ctx,'pass',g.id),ctx.note];lines.push(row.map(clean).join('\t'));}return lines.join('\n');}
+function filename(){return SESSION.id+(data.date?'-'+data.date:'')+'.tsv';}
+function downloadTSV(){try{const blob=new Blob([tsv()+'\n'],{type:'text/tab-separated-values;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename();a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);const el=document.getElementById('copy-status');if(el)el.textContent='Download requested. Check the saved file before closing.';}catch(e){const el=document.getElementById('copy-status');if(el)el.textContent='Download failed; use Copy or Preview.';}}
+async function copyTSV(){try{if(!navigator.clipboard?.writeText)throw Error('not available');await navigator.clipboard.writeText(tsv());const el=document.getElementById('copy-status');if(el)el.textContent='TSV copied.';}catch(e){ui.exportPreview=true;render();const ta=document.querySelector('.preview');if(ta){ta.focus();ta.select();try{document.execCommand('copy');document.getElementById('copy-status').textContent='TSV selected/copied; verify it pasted correctly.';}catch(x){document.getElementById('copy-status').textContent='Copy manually from the selected preview.';}}}}
+load();
+</script>
+</body>
+</html>
